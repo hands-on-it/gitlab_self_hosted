@@ -1,0 +1,64 @@
+services:
+  gitlab:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: gitlab_custom
+    container_name: gitlab
+    restart: always
+    hostname: 'gitlab.internal'
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'https://gitlab.internal'
+        letsencrypt['enable'] = false
+        registry_external_url 'https://gitlab.internal:5050'
+        gitlab_rails['registry_enable'] = true
+        registry_nginx['ssl_certificate'] = '/etc/gitlab-secrets/ssl/gitlab.internal.crt'
+        registry_nginx['ssl_certificate_key'] = '/etc/gitlab-secrets/ssl/gitlab.internal.key'
+        registry_nginx['listen_port'] = 5050
+        registry_nginx['listen_https'] = true
+        gitlab_rails['registry_path'] = "/var/opt/gitlab/gitlab-rails/shared/registry"
+        nginx['ssl_certificate'] = '/etc/gitlab-secrets/ssl/gitlab.internal.crt'
+        nginx['ssl_certificate_key'] = '/etc/gitlab-secrets/ssl/gitlab.internal.key'
+        gitlab_rails['store_initial_root_password'] = true
+        registry['log_level'] = 'info'
+        gitlab_shell['log_level'] = 'INFO'
+        gitaly['logging_level'] = 'warn'
+        gitlab_rails['smtp_enable'] = true
+        gitlab_rails['smtp_address'] = "smtp.gmail.com"
+        gitlab_rails['smtp_port'] = 587
+        gitlab_rails['smtp_user_name'] = "gitlabxxx@gmail.com"
+        gitlab_rails['smtp_password'] = "xxx1 xxx2 xxx3 xxx4"
+        gitlab_rails['smtp_domain'] = "smtp.gmail.com"
+        gitlab_rails['smtp_authentication'] = "login"
+        gitlab_rails['smtp_enable_starttls_auto'] = true
+        gitlab_rails['smtp_tls'] = false
+        gitlab_rails['smtp_openssl_verify_mode'] = 'peer'
+        gitlab_rails['ci_jwt_signing_key'] = File.read('/etc/gitlab-secrets/ci_jwt_signing_key.pem')
+    logging:
+      driver: "json-file"
+      options:
+        max-size: 5m
+        max-file: "3"
+    healthcheck:
+      test: ["CMD-SHELL", "curl", "-ks", "https://localhost", ">", "/dev/null"]
+      interval: 40s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+      start_interval: 5s
+    ports:
+      - '80:80'
+      - '443:443'
+      - '22:22'
+      - '5050:5050'
+    volumes:
+      - ./gitlab_config:/etc/gitlab
+      - ./gitlab_logs:/var/log/gitlab
+      - ./gitlab_data:/var/opt/gitlab
+      - ./gitlab_registry:/var/opt/gitlab/gitlab-rails/shared/registry
+    shm_size: '512m'
+
+networks:
+  default:
+    name: gitlab
