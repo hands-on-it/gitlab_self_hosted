@@ -50,5 +50,9 @@ e.g.
 ```bash
    docker compose -f docker-compose.yml logs -f gitlab
 ```
+9. Check your default password
+```bash
+docker exec -ti giltab bash -c 'cat /etc/gitlab/initial_root_password'
+```
 
 
