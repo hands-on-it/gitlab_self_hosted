@@ -12,7 +12,7 @@
    chmod +x gen_cah.sh
    ./gen_ca.sh
 ```
-2. Generate server certificates
+2. Generate server certificates (use gitlab name for files)
 ```bash
    chmod +x make_certs.sh
    ./make_certs.sh
@@ -27,7 +27,7 @@
 4. Copy certificates to build directory
 ```bash
    cp rootCA.crt /opt/gitlab/gitlab_certs
-   copy your_server.crt  your_server.key  /opt/gitlab/gitlab_certs
+   copy gitlab.crt  gitlab.key  /opt/gitlab/gitlab_certs
 ```
 5. Generate JWT key file
 ```bash
